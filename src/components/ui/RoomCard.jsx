@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const RoomCard = ({ room }) => {
@@ -12,7 +13,9 @@ const RoomCard = ({ room }) => {
         <h2 className="card-title">{roomName}</h2>
         <p>{description}</p>
         <div className="card-actions justify-end">
-          <button className="btn btn-primary">Buy Now</button>
+          <Link href={`/all-rooms/${room._id}`}>
+            <button className="btn btn-primary">Details</button>
+          </Link>
         </div>
       </div>
     </div>
