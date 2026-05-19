@@ -20,7 +20,7 @@ const Navbar = () => {
             <Link href="/">Home</Link>
           </li>
           <li className=" font-medium">
-            <Link href="/all-books ">All Books</Link>
+            <Link href="/all-rooms">All Rooms</Link>
           </li>
         </ul>
         <div className="flex items-center gap-3">
