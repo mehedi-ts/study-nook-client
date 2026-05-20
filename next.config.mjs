@@ -8,6 +8,18 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "book-swap-gilt-tau.vercel.app",
+      },
+      {
+        protocol: "https",
+        hostname: "www.pexels.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ibb.co",
+      },
     ],
   },
 };

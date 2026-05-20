@@ -1,4 +1,3 @@
-import React from "react";
 import { getAllRooms } from "../../../lib/data";
 import RoomCard from "@/components/ui/RoomCard";
 
