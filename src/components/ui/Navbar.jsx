@@ -39,6 +39,9 @@ const Navbar = () => {
           <li className=" font-medium">
             <Link href="/add-room">Add Room</Link>
           </li>
+          <li className=" font-medium">
+            <Link href="/my-bookings">My Bookings</Link>
+          </li>
         </ul>
         {userData ? (
           <>

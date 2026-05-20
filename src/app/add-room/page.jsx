@@ -170,7 +170,7 @@ const AddRoomPage = () => {
                       <TextArea
                         placeholder="Describe the room..."
                         variant="bordered"
-                        minRows={5}
+                        rows={5}
                         radius="lg"
                       />
 

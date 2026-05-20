@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { getRoomById } from "../../../../lib/data";
-import { Card } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 
 import { IoPeople } from "react-icons/io5";
 import { LuMapPinHouse } from "react-icons/lu";
@@ -9,6 +9,8 @@ import { MdDateRange } from "react-icons/md";
 import BookingCard from "@/components/detailsUi/BookingCard";
 import { headers } from "next/headers";
 import { auth } from "../../../../lib/auth";
+import Link from "next/link";
+import DetailsAction from "@/components/ui/DetailsAction";
 
 const RoomDetailsPage = async ({ params }) => {
   const session = await auth.api.getSession({
@@ -19,7 +21,8 @@ const RoomDetailsPage = async ({ params }) => {
   const { roomId } = await params;
 
   const roomData = await getRoomById(roomId);
-
+  const room_id = roomId;
+  console.log(room_id);
   const {
     roomName,
     image,
@@ -96,8 +99,13 @@ const RoomDetailsPage = async ({ params }) => {
                 <p className="text-base font-semibold">1-4 people</p>
               </div>
             </div>
-            <div></div>
           </div>
+          <DetailsAction
+            userEmail={userEmail}
+            userData={userData}
+            room_id={room_id}
+            roomData={roomData}
+          ></DetailsAction>
         </div>
         <BookingCard roomData={roomData} userData={userData}></BookingCard>
       </div>
