@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { authClient } from "../../../lib/auth-client";
+import { redirect } from "next/navigation";
 
 const LoginPage = () => {
   const onSubmit = async (e) => {
@@ -23,6 +24,7 @@ const LoginPage = () => {
       password,
     });
     console.log(data, error);
+    redirect("/");
   };
   return (
     <div className="max-w-7xl mx-auto w-full h-180 flex items-center justify-center border flex-col ">

@@ -10,8 +10,8 @@ const MyBookingPage = async () => {
   });
   const userData = session?.user;
 
-  const bookingData = await getMyBookingByUserId(userData.id);
-  console.log("this is:", bookingData);
+  const bookingData = await getMyBookingByUserId(userData?.id);
+
   return (
     <div className="max-w-7xl py-10 mx-auto w-full">
       <div>
