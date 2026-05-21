@@ -10,7 +10,7 @@ const HOURLY_SLOTS = Array.from({ length: 13 }, (_, i) => {
 
 const HOURLY_RATE = 50;
 
-const BookingCard = ({ onClose, roomData, userData }) => {
+const BookingCard = ({ onClose, roomData, userData, count }) => {
   console.log(userData, roomData);
   const {
     roomName,
@@ -82,16 +82,29 @@ const BookingCard = ({ onClose, roomData, userData }) => {
       capacity,
       description,
     };
-    const req = await fetch("http://localhost:8000/booking", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bookingData),
-    });
-    const res = await req.json();
-    console.log(res);
 
-    alert("Booking ready (frontend only)");
-    onClose?.();
+    try {
+      const req = await fetch("http://localhost:8000/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData),
+      });
+
+      const res = await req.json();
+
+      // 🔥 Conflict check (backend 400)
+      if (!req.ok) {
+        alert(res.message || "Something went wrong");
+        return;
+      }
+
+      console.log(res);
+      alert("Booking successful");
+      onClose?.();
+    } catch (error) {
+      console.error(error);
+      alert("Server error. Please try again later.");
+    }
   };
 
   return (

@@ -18,7 +18,7 @@ const RoomCard = ({ room }) => {
   return (
     <div className="w-full h-full flex flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       {/* Image */}
-      <div className="relative h-60 w-full flex-shrink-0 overflow-hidden">
+      <div className="relative h-60 w-full shrink-0 overflow-hidden">
         <Image
           src={image}
           alt={roomName}

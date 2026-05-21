@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import { FloppyDisk } from "@gravity-ui/icons";
 
 import {
@@ -15,16 +18,8 @@ import {
   TextField,
 } from "@heroui/react";
 
-import {
-  ArrowLeft,
-  BookOpen,
-  Building2,
-  DollarSign,
-  FileText,
-  ImageIcon,
-  Users,
-} from "lucide-react";
-import { redirect } from "next/navigation";
+import { ArrowLeft, BookOpen } from "lucide-react";
+
 import { authClient } from "../../../lib/auth-client";
 
 const amenities = [
@@ -37,12 +32,35 @@ const amenities = [
 ];
 
 const AddRoomPage = () => {
+  const router = useRouter();
   const { data: session } = authClient.useSession();
   const user = session?.user;
+
   const { name, email, id } = user || {};
+  const [loading, setLoading] = useState(false);
+
+  // ✅ FIXED STATE
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+
+  // ✅ TOGGLE FUNCTION
+  const handleAmenityChange = (item) => {
+    setSelectedAmenities((prev) => {
+      if (prev.includes(item)) {
+        return prev.filter((i) => i !== item);
+      }
+      return [...prev, item];
+    });
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user) {
+      alert("Please login first");
+      return;
+    }
+
+    setLoading(true);
 
     const formData = new FormData(e.currentTarget);
 
@@ -51,55 +69,71 @@ const AddRoomPage = () => {
       description: formData.get("description"),
       image: formData.get("image"),
       floor: formData.get("floor"),
-      capacity: formData.get("capacity"),
-      hourlyRate: formData.get("hourlyRate"),
-      amenities: formData.getAll("amenities"),
+      capacity: Number(formData.get("capacity")),
+      hourlyRate: Number(formData.get("hourlyRate")),
+
+      // ✅ FIXED HERE
+      amenities: selectedAmenities,
+
       userName: name,
       userId: id,
       userEmail: email,
     };
 
-    const req = await fetch("http://localhost:8000/all-rooms", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const res = await req.json();
-    console.log(res);
-    if (res?.acknowledged === true) {
-      alert("done");
+    try {
+      const req = await fetch("http://localhost:8000/all-rooms", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const res = await req.json();
+
+      if (res?.acknowledged) {
+        alert("Room added successfully");
+        router.push("/all-rooms");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
     }
-    redirect("/all-rooms");
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f7f9] py-10 px-4">
+    <div className="min-h-screen bg-[#f6f7f9] py-6 sm:py-10 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Back Button */}
-        <button className="flex items-center gap-2 text-gray-600 hover:text-black mb-8 transition">
+        {/* BACK */}
+        <button
+          onClick={() => router.push("/all-rooms")}
+          className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 sm:mb-8"
+        >
           <ArrowLeft size={18} />
           Study Rooms
         </button>
 
-        {/* Heading */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold text-slate-900">Add New Room</h1>
+        {/* HEADING */}
+        <div className="mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900">
+            Add New Room
+          </h1>
 
-          <p className="text-lg text-gray-500 mt-4">
+          <p className="text-gray-500 mt-3 sm:mt-4">
             Fill in the details below to add a new study room.
           </p>
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white border border-gray-200 rounded-[32px] shadow-sm p-6 md:p-10">
-          {/* Card Header */}
-          <div className="flex items-start gap-4 mb-10">
-            <div className="bg-green-100 p-3 rounded-2xl">
+        {/* CARD */}
+        <div className="bg-white border border-gray-200 rounded-2xl sm:rounded-[32px] shadow-sm p-5 sm:p-8 md:p-10">
+          {/* HEADER */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-8 sm:mb-10">
+            <div className="bg-green-100 p-3 rounded-2xl w-fit">
               <BookOpen className="w-6 h-6 text-green-600" />
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
                 Room Information
               </h2>
 
@@ -111,209 +145,109 @@ const AddRoomPage = () => {
 
           {/* FORM */}
           <Form onSubmit={onSubmit}>
-            <Fieldset className="w-full space-y-8">
-              <Fieldset.Group className="space-y-8">
-                {/* Room Name */}
-                <div className="flex gap-4">
-                  <div className="hidden md:flex min-w-14 h-14 items-center justify-center rounded-2xl bg-green-50">
-                    <Building2 className="w-5 h-5 text-green-600" />
-                  </div>
+            <Fieldset className="space-y-6 sm:space-y-8">
+              {/* ROOM NAME */}
+              <TextField isRequired name="roomName">
+                <Label>Room Name</Label>
+                <Input className="w-full" placeholder="e.g. Focus Room A" />
+              </TextField>
 
-                  <div className="flex-1">
-                    <TextField
-                      isRequired
-                      name="roomName"
-                      validate={(value) => {
-                        if (value.length < 3) {
-                          return "Room name must be at least 3 characters";
-                        }
+              {/* DESCRIPTION */}
+              <TextField isRequired name="description">
+                <Label>Description</Label>
+                <TextArea
+                  className="w-full"
+                  rows={5}
+                  placeholder="Describe the room..."
+                />
+              </TextField>
 
-                        return null;
-                      }}
-                    >
-                      <Label>Room Name</Label>
+              {/* IMAGE */}
+              <TextField isRequired name="image">
+                <Label>Image URL</Label>
+                <Input className="w-full" placeholder="https://..." />
+              </TextField>
 
-                      <Input
-                        placeholder="e.g. Focus Room A"
-                        variant="bordered"
-                        size="lg"
-                        radius="lg"
-                      />
+              {/* FLOOR + CAPACITY */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TextField isRequired name="floor">
+                  <Label>Floor</Label>
+                  <Input className="w-full" placeholder="3rd Floor" />
+                </TextField>
 
-                      <Description>Enter a unique room name</Description>
+                <TextField isRequired name="capacity">
+                  <Label>Capacity</Label>
+                  <Input className="w-full" type="number" placeholder="4" />
+                </TextField>
+              </div>
 
-                      <FieldError />
-                    </TextField>
-                  </div>
-                </div>
+              {/* HOURLY RATE */}
+              <TextField isRequired name="hourlyRate">
+                <Label>Hourly Rate</Label>
+                <Input className="w-full" type="number" placeholder="5" />
+              </TextField>
 
-                {/* Description */}
-                <div className="flex gap-4">
-                  <div className="hidden md:flex min-w-14 h-14 items-center justify-center rounded-2xl bg-green-50">
-                    <FileText className="w-5 h-5 text-green-600" />
-                  </div>
+              {/* AMENITIES FIXED */}
+              <div>
+                <h2 className="text-xl font-bold mb-4 text-slate-900">
+                  Amenities
+                </h2>
 
-                  <div className="flex-1">
-                    <TextField
-                      isRequired
-                      name="description"
-                      validate={(value) => {
-                        if (value.length < 10) {
-                          return "Description must be at least 10 characters";
-                        }
+                <p className="text-gray-500 mb-4 text-sm">
+                  Select available features for this room
+                </p>
 
-                        return null;
-                      }}
-                    >
-                      <Label>Description</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {amenities.map((item) => {
+                    const checked = selectedAmenities.includes(item);
 
-                      <TextArea
-                        placeholder="Describe the room..."
-                        variant="bordered"
-                        rows={5}
-                        radius="lg"
-                      />
-
-                      <Description>Minimum 10 characters</Description>
-
-                      <FieldError />
-                    </TextField>
-                  </div>
-                </div>
-
-                {/* Image URL */}
-                <div className="flex gap-4">
-                  <div className="hidden md:flex min-w-14 h-14 items-center justify-center rounded-2xl bg-green-50">
-                    <ImageIcon className="w-5 h-5 text-green-600" />
-                  </div>
-
-                  <div className="flex-1">
-                    <TextField isRequired name="image">
-                      <Label>Image URL</Label>
-
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        variant="bordered"
-                        size="lg"
-                        radius="lg"
-                      />
-
-                      <FieldError />
-                    </TextField>
-                  </div>
-                </div>
-
-                {/* Floor + Capacity */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  {/* Floor */}
-                  <div className="flex gap-4">
-                    <div className="hidden md:flex min-w-14 h-14 items-center justify-center rounded-2xl bg-green-50">
-                      <Building2 className="w-5 h-5 text-green-600" />
-                    </div>
-
-                    <div className="flex-1">
-                      <TextField isRequired name="floor">
-                        <Label>Floor</Label>
-
-                        <Input
-                          placeholder="e.g. 3rd Floor"
-                          variant="bordered"
-                          size="lg"
-                          radius="lg"
-                        />
-
-                        <FieldError />
-                      </TextField>
-                    </div>
-                  </div>
-
-                  {/* Capacity */}
-                  <div className="flex gap-4">
-                    <div className="hidden md:flex min-w-14 h-14 items-center justify-center rounded-2xl bg-green-50">
-                      <Users className="w-5 h-5 text-green-600" />
-                    </div>
-
-                    <div className="flex-1">
-                      <TextField isRequired name="capacity">
-                        <Label>Capacity</Label>
-
-                        <Input
-                          type="number"
-                          placeholder="e.g. 4"
-                          variant="bordered"
-                          size="lg"
-                          radius="lg"
-                        />
-
-                        <FieldError />
-                      </TextField>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Hourly Rate */}
-                <div className="flex gap-4">
-                  <div className="hidden md:flex min-w-14 h-14 items-center justify-center rounded-2xl bg-green-50">
-                    <DollarSign className="w-5 h-5 text-green-600" />
-                  </div>
-
-                  <div className="flex-1">
-                    <TextField isRequired name="hourlyRate">
-                      <Label>Hourly Rate (USD)</Label>
-
-                      <Input
-                        type="number"
-                        placeholder="e.g. 5"
-                        variant="bordered"
-                        size="lg"
-                        radius="lg"
-                      />
-
-                      <FieldError />
-                    </TextField>
-                  </div>
-                </div>
-
-                {/* Amenities */}
-                <div className="pt-4">
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                    Amenities
-                  </h2>
-
-                  <p className="text-gray-500 mb-6">
-                    Select all that apply to this room.
-                  </p>
-
-                  <div className="grid md:grid-cols-3 gap-5">
-                    {amenities.map((item) => (
+                    return (
                       <div
                         key={item}
-                        className="border border-gray-200 rounded-2xl px-5 py-4 hover:border-green-500 transition"
+                        onClick={() => handleAmenityChange(item)}
+                        className={`
+                          p-4 border rounded-2xl cursor-pointer transition
+                          flex items-center gap-2 select-none
+                          ${
+                            checked
+                              ? "bg-green-50 border-green-500"
+                              : "border-gray-200 hover:border-green-400"
+                          }
+                        `}
                       >
                         <Checkbox
-                          name="amenities"
-                          value={item}
-                          color="success"
-                          size="lg"
-                        >
-                          <span className="font-medium text-slate-700">
-                            {item}
-                          </span>
-                        </Checkbox>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Fieldset.Group>
+                          isSelected={checked}
+                          onValueChange={() => handleAmenityChange(item)}
+                          classNames={{ base: "hidden" }}
+                        />
 
-              {/* Actions */}
-              <Fieldset.Actions className="flex items-center justify-between pt-10">
+                        <span
+                          className={
+                            checked
+                              ? "text-green-700 font-medium"
+                              : "text-slate-700"
+                          }
+                        >
+                          {item}
+                        </span>
+
+                        {checked && (
+                          <span className="ml-auto text-green-600 font-bold">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex flex-col sm:flex-row gap-4 sm:justify-between pt-6">
                 <Button
                   type="reset"
                   variant="bordered"
-                  radius="lg"
-                  size="lg"
-                  className="px-8"
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
@@ -321,14 +255,13 @@ const AddRoomPage = () => {
                 <Button
                   type="submit"
                   color="success"
-                  radius="lg"
-                  size="lg"
-                  className="px-10 font-semibold"
+                  className="w-full sm:w-auto font-semibold"
+                  isDisabled={loading}
                 >
                   <FloppyDisk />
-                  Add Room
+                  {loading ? "Saving..." : "Add Room"}
                 </Button>
-              </Fieldset.Actions>
+              </div>
             </Fieldset>
           </Form>
         </div>

@@ -6,22 +6,40 @@ import MyBookingCard from "@/components/ui/MyBookingCard";
 
 const MyBookingPage = async () => {
   const session = await auth.api.getSession({
-    headers: await headers(), // you need to pass the headers object.
+    headers: await headers(),
   });
+
   const userData = session?.user;
 
   const bookingData = await getMyBookingByUserId(userData?.id);
 
+  const hasBookings = bookingData && bookingData.length > 0;
+
   return (
-    <div className="max-w-7xl py-10 mx-auto w-full">
-      <div>
-        <h1 className="text-4xl font-bold mb-7 ">My Bookings</h1>
+    <div className="max-w-7xl mx-auto w-full py-10 px-4">
+      {/* Header */}
+      <div className="mb-7">
+        <h1 className="text-4xl font-bold">My Bookings</h1>
       </div>
-      <div className="flex flex-col gap-5">
-        {bookingData.map((booking) => {
-          return <MyBookingCard key={booking._id} />;
-        })}
-      </div>
+
+      {/* Content */}
+      {hasBookings ? (
+        <div className="flex flex-col gap-5">
+          {bookingData.map((booking) => (
+            <MyBookingCard key={booking._id} data={booking} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center min-h-[300px]">
+          <div className=" rounded-2xl p-8 text-center shadow-sm bg-white w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-2">No Bookings Found</h2>
+            <p className="text-gray-500 text-sm">
+              You haven’t booked anything yet. When you book a room, it will
+              appear here.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

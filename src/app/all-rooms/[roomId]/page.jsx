@@ -1,28 +1,33 @@
 import Image from "next/image";
 import { getRoomById } from "../../../../lib/data";
-import { Button, Card } from "@heroui/react";
+import { Card } from "@heroui/react";
 
 import { IoPeople } from "react-icons/io5";
 import { LuMapPinHouse } from "react-icons/lu";
 import { FaDollarSign } from "react-icons/fa";
 import { MdDateRange } from "react-icons/md";
+
 import BookingCard from "@/components/detailsUi/BookingCard";
 import { headers } from "next/headers";
 import { auth } from "../../../../lib/auth";
-import Link from "next/link";
 import DetailsAction from "@/components/ui/DetailsAction";
 
 const RoomDetailsPage = async ({ params }) => {
   const session = await auth.api.getSession({
-    headers: await headers(), // you need to pass the headers object.
+    headers: await headers(),
   });
+
   const userData = session?.user;
 
   const { roomId } = await params;
 
   const roomData = await getRoomById(roomId);
   const room_id = roomId;
-  console.log(room_id);
+
+  const res = await fetch(`http://localhost:8000/booking-count/${roomId}`);
+  const data = await res.json();
+
+  const count = data?.count;
   const {
     roomName,
     image,
@@ -32,82 +37,77 @@ const RoomDetailsPage = async ({ params }) => {
     capacity,
     userEmail,
   } = roomData;
+
+  // 👉 static total booking (later API theke asbe)
+  const totalBookings = 12;
+
   return (
-    <div className="max-w-7xl mx-auto w-full py-10">
-      <div className="grid grid-cols-3 gap-5 ">
-        <div className="img">
-          <Card className="relative h-114 w-full p-6 overflow-hidden shadow-2xl border-0 border-gray-300">
-            <Image
-              src={image}
-              alt={roomName}
-              fill
-              className=" object-cover"
-            ></Image>
+    <div className="max-w-7xl mx-auto w-full px-4 py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* LEFT - IMAGE */}
+        <div className="lg:col-span-1">
+          <Card className="relative h-[420px] w-full overflow-hidden rounded-2xl shadow-xl border-0">
+            <Image src={image} alt={roomName} fill className="object-cover" />
           </Card>
         </div>
-        <div className="details flex flex-col gap-5">
-          <h1 className="text-4xl font-semibold">{roomName}</h1>
-          <p>{description} </p>
-          <div className="bg-white rounded-lg  flex items-center justify-between gap-3 p-4 shadow-sm">
-            <div className="flex  gap-1.5 ">
-              <div className=" text-[#10b981]">
-                <div className="  ">
-                  <IoPeople size={20} />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Capacity</p>
-                <p className="text-base font-semibold">1-4 people</p>
-              </div>
-            </div>
-            <div className="flex  gap-1.5 ">
-              <div className=" text-[#10b981]">
-                <div className=" ">
-                  <LuMapPinHouse />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Capacity</p>
-                <p className="text-base font-semibold">1-4 people</p>
-              </div>
-            </div>
-            <div></div>
+
+        {/* MIDDLE - DETAILS */}
+        <div className="lg:col-span-1 flex flex-col gap-5">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{roomName}</h1>
+            <p className="text-gray-600 mt-2 leading-relaxed">{description}</p>
           </div>
-          <div className="bg-white rounded-lg  flex items-center justify-between gap-3 p-4 shadow-sm">
-            <div className="flex items-center  gap-1.5 ">
-              <div className=" text-[#10b981]">
-                <div className="  ">
-                  <FaDollarSign size={30} />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Capacity</p>
-                <p className="text-base font-semibold">1-4 people</p>
+
+          {/* INFO CARDS */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4 shadow-sm border flex items-center gap-3">
+              <IoPeople className="text-emerald-500" size={22} />
+              <div>
+                <p className="text-xs text-gray-500">Capacity</p>
+                <p className="font-semibold text-sm">
+                  {capacity || "1-4"} people
+                </p>
               </div>
             </div>
-            <div></div>
-          </div>
-          <div className="bg-white rounded-lg flex items-center justify-between gap-3 p-4 shadow-sm">
-            <div className="flex items-center  gap-1.5 ">
-              <div className=" text-[#10b981]">
-                <div className="  ">
-                  <MdDateRange size={30} />
-                </div>
+
+            <div className="bg-white rounded-xl p-4 shadow-sm border flex items-center gap-3">
+              <LuMapPinHouse className="text-emerald-500" size={22} />
+              <div>
+                <p className="text-xs text-gray-500">Floor</p>
+                <p className="font-semibold text-sm">{floor || "N/A"}</p>
               </div>
-              <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Capacity</p>
-                <p className="text-base font-semibold">1-4 people</p>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 shadow-sm border flex items-center gap-3">
+              <FaDollarSign className="text-emerald-500" size={22} />
+              <div>
+                <p className="text-xs text-gray-500">Hourly Rate</p>
+                <p className="font-semibold text-sm">${hourlyRate || 0}/hr</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 shadow-sm border flex items-center gap-3">
+              <MdDateRange className="text-emerald-500" size={22} />
+              <div>
+                <p className="text-xs text-gray-500">Total Bookings</p>
+                <p className="font-semibold text-sm">{count}</p>
               </div>
             </div>
           </div>
+
+          {/* ACTIONS */}
           <DetailsAction
             userEmail={userEmail}
             userData={userData}
             room_id={room_id}
             roomData={roomData}
-          ></DetailsAction>
+          />
         </div>
-        <BookingCard roomData={roomData} userData={userData}></BookingCard>
+
+        {/* RIGHT - BOOKING */}
+        <div className="lg:col-span-1">
+          <BookingCard roomData={roomData} userData={userData} count={count} />
+        </div>
       </div>
     </div>
   );
