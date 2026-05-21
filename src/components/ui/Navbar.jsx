@@ -42,7 +42,7 @@ const Navbar = () => {
     },
     {
       name: "My Listings",
-      href: "/my-listings",
+      href: "/my-room",
     },
     {
       name: "My Bookings",
