@@ -3,15 +3,7 @@
 import { useEffect, useState } from "react";
 import { FloppyDisk } from "@gravity-ui/icons";
 
-import {
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  Label,
-  TextArea,
-  TextField,
-} from "@heroui/react";
+import { Button, Form, Input, Label, TextArea, TextField } from "@heroui/react";
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
