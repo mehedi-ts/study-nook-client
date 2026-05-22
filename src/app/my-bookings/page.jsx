@@ -24,6 +24,7 @@ const MyBookingPage = async () => {
   );
 
   const bookingData = await bookingRes.json();
+  console.log("this is ", bookingData);
 
   const hasBookings = bookingData && bookingData.length > 0;
 

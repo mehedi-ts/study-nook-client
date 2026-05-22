@@ -20,6 +20,7 @@ import { ArrowLeft, BookOpen } from "lucide-react";
 
 import { authClient } from "../../../lib/auth-client";
 import toast from "react-hot-toast";
+import { FiPlus } from "react-icons/fi";
 
 const amenities = [
   "Whiteboard",
@@ -267,24 +268,14 @@ const AddRoomPage = () => {
               </div>
 
               {/* ACTIONS */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:justify-between pt-6">
-                <Button
-                  type="reset"
-                  variant="bordered"
-                  className="w-full sm:w-auto"
-                  isDisabled={loading}
-                >
-                  Cancel
-                </Button>
-
+              <div className="flex items-center justify-end">
                 <Button
                   type="submit"
                   color="success"
                   className="w-full sm:w-auto font-semibold"
                   isDisabled={loading}
                 >
-                  <FloppyDisk />
-
+                  <FiPlus />
                   {loading ? "Saving..." : "Add Room"}
                 </Button>
               </div>

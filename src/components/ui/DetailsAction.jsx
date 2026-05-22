@@ -6,6 +6,7 @@ import { deleteRoom } from "../../../lib/data";
 import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
 import { authClient } from "../../../lib/auth-client";
+import { Edit } from "lucide-react";
 
 const DetailsAction = ({ userData, userEmail, room_id, roomData }) => {
   const handleDelete = async (id) => {
@@ -25,13 +26,15 @@ const DetailsAction = ({ userData, userEmail, room_id, roomData }) => {
   };
   return (
     <div
-      className={` flex-col gap-2 w-full ${userEmail === userData.email ? "flex" : "hidden"}`}
+      className={` gap-2  ${userEmail === userData.email ? "flex" : "hidden"}`}
     >
       <Link href={`/all-rooms/${room_id}/edit`}>
-        <Button className="rounded-lg w-full">Edit</Button>
+        <Button className="rounded-lg w-full">
+          <Edit></Edit>Edit
+        </Button>
       </Link>
       <AlertDialog>
-        <Button className="rounded-lg w-full" variant="danger">
+        <Button className="rounded-lg " variant="danger">
           Delete
         </Button>
         <AlertDialog.Backdrop>

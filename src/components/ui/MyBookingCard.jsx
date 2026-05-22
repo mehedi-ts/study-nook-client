@@ -13,37 +13,37 @@ const MyBookingCard = ({ data }) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [open, setOpen] = useState(false);
 
-  // normalize status (important fix)
-  const normalizedStatus = status?.toLowerCase();
-
-  // check future date
+  const isConfirmed = status === true;
   const isFuture = new Date(date) >= new Date().setHours(0, 0, 0, 0);
 
-  // DELETE API call
-  const handleDelete = async () => {
+  // ✅ CANCEL BOOKING (PATCH)
+  const handleCancel = async () => {
     const { data: tokenData } = await authClient.token();
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API}/booking/${_id}`, {
-        method: "DELETE",
-        headers: {
-          authorization: `Bearer ${tokenData?.token}`,
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/booking/cancel/${_id}`,
+        {
+          method: "PATCH",
+          headers: {
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
-      });
+      );
 
       const result = await res.json();
 
-      if (!res.ok) {
-        alert(result.message || "Delete failed");
+      if (!result.success) {
+        alert(result.message || "Cancel failed");
         return;
       }
 
-      alert("Booking deleted successfully");
+      alert("Booking cancelled successfully");
 
-      // temporary fix (best: state lift up later)
       window.location.reload();
     } catch (error) {
-      alert("Something went wrong");
       console.error(error);
+      alert("Something went wrong");
     }
   };
 
@@ -59,7 +59,7 @@ const MyBookingCard = ({ data }) => {
 
           {/* INFO */}
           <div className="space-y-4">
-            {/* ROOM + STATUS */}
+            {/* TITLE + STATUS */}
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-green-600">
                 <Library size={20} />
@@ -68,17 +68,14 @@ const MyBookingCard = ({ data }) => {
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{roomName}</h2>
 
-                <p className="text-sm text-gray-500">Premium Study Room</p>
-
-                {/* STATUS BADGE */}
                 <span
                   className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                    normalizedStatus === "confirmed"
+                    isConfirmed
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {normalizedStatus || "unknown"}
+                  {isConfirmed ? "confirmed" : "cancelled"}
                 </span>
               </div>
             </div>
@@ -89,46 +86,35 @@ const MyBookingCard = ({ data }) => {
                 <p className="text-sm text-gray-500">Date</p>
                 <div className="mt-1 flex items-center gap-2">
                   <CalendarDays size={18} className="text-green-600" />
-                  <span className="text-lg font-semibold text-gray-800">
-                    {date}
-                  </span>
+                  <span className="text-lg font-semibold">{date}</span>
                 </div>
               </div>
 
               <div>
                 <p className="text-sm text-gray-500">Room ID</p>
-                <h4 className="mt-1 text-lg font-semibold text-gray-800">
-                  {roomId}
-                </h4>
+                <h4 className="mt-1 text-lg font-semibold">{roomId}</h4>
               </div>
 
               <div>
                 <p className="text-sm text-gray-500">Cost</p>
-                <h4 className="mt-1 text-lg font-semibold text-gray-800">
-                  ${totalCost}
-                </h4>
+                <h4 className="mt-1 text-lg font-semibold">${totalCost}</h4>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ACTION BUTTONS */}
+        {/* ACTION */}
         <div className="flex items-center gap-3">
           {/* CANCEL BUTTON */}
-          {normalizedStatus === "confirmed" && isFuture && (
-            <button className="flex items-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-medium text-gray-700 hover:bg-gray-100">
+          {isConfirmed && isFuture && (
+            <button
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-medium text-gray-700 hover:bg-gray-100"
+            >
               <X size={18} />
               Cancel
             </button>
           )}
-
-          {/* DELETE BUTTON */}
-          <button
-            onClick={() => setOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-red-500 px-5 py-3 font-medium text-white hover:bg-red-600"
-          >
-            Delete
-          </button>
         </div>
       </div>
 
@@ -136,10 +122,10 @@ const MyBookingCard = ({ data }) => {
       {open && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="w-[350px] rounded-xl bg-white p-6">
-            <h2 className="text-lg font-semibold mb-2">Delete Booking?</h2>
+            <h2 className="text-lg font-semibold mb-2">Cancel Booking?</h2>
 
             <p className="text-sm text-gray-500 mb-4">
-              This action cannot be undone.
+              This will mark your booking as cancelled.
             </p>
 
             <div className="flex justify-end gap-3">
@@ -147,17 +133,17 @@ const MyBookingCard = ({ data }) => {
                 onClick={() => setOpen(false)}
                 className="px-4 py-2 rounded-lg border"
               >
-                Cancel
+                No
               </button>
 
               <button
                 onClick={() => {
                   setOpen(false);
-                  handleDelete();
+                  handleCancel();
                 }}
                 className="px-4 py-2 rounded-lg bg-red-500 text-white"
               >
-                Delete
+                Yes, Cancel
               </button>
             </div>
           </div>
