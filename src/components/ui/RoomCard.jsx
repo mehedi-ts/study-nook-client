@@ -60,7 +60,7 @@ const RoomCard = ({ room }) => {
 
             <div className="flex items-center gap-1.5">
               <RiGroupLine className="text-lg text-emerald-600" />
-              <span>{capacity} People</span>
+              <span>1- {capacity} People</span>
             </div>
           </div>
 
@@ -86,7 +86,7 @@ const RoomCard = ({ room }) => {
         {/* Bottom Section */}
         <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-5">
           <h3 className="text-2xl font-bold text-emerald-600">
-            ৳{hourlyRate}
+            ${hourlyRate}
             <span className="text-sm font-medium text-gray-500"> /hr</span>
           </h3>
 

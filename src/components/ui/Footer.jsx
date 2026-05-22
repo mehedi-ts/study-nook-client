@@ -7,7 +7,9 @@ import {
   RiInstagramLine,
   RiLinkedinFill,
   RiTwitterXFill,
-  RiArrowRightLine,
+  RiMailLine,
+  RiMapPinLine,
+  RiPhoneLine,
 } from "react-icons/ri";
 
 const Footer = () => {
@@ -72,37 +74,22 @@ const Footer = () => {
 
             <ul className="space-y-4 text-gray-600">
               <li>
-                <Link
-                  href="/"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/" className="hover:text-green-500">
                   Home
                 </Link>
               </li>
-
               <li>
-                <Link
-                  href="/all-rooms"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/all-rooms" className="hover:text-green-500">
                   All Rooms
                 </Link>
               </li>
-
               <li>
-                <Link
-                  href="/my-bookings"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/my-bookings" className="hover:text-green-500">
                   My Bookings
                 </Link>
               </li>
-
               <li>
-                <Link
-                  href="/my-room"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/my-room" className="hover:text-green-500">
                   My Rooms
                 </Link>
               </li>
@@ -115,72 +102,66 @@ const Footer = () => {
 
             <ul className="space-y-4 text-gray-600">
               <li>
-                <Link
-                  href="/faq"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/faq" className="hover:text-green-500">
                   FAQs
                 </Link>
               </li>
-
               <li>
-                <Link
-                  href="/terms"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/terms" className="hover:text-green-500">
                   Terms & Conditions
                 </Link>
               </li>
-
               <li>
-                <Link
-                  href="/privacy-policy"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/privacy-policy" className="hover:text-green-500">
                   Privacy Policy
                 </Link>
               </li>
-
               <li>
                 <Link
                   href="/cancellation-policy"
-                  className="hover:text-green-500 transition duration-300"
+                  className="hover:text-green-500"
                 >
                   Cancellation Policy
                 </Link>
               </li>
-
               <li>
-                <Link
-                  href="/help-center"
-                  className="hover:text-green-500 transition duration-300"
-                >
+                <Link href="/help-center" className="hover:text-green-500">
                   Help Center
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Contact Info (UPDATED SECTION) */}
           <div>
             <h3 className="text-xl font-semibold mb-6 text-black">
-              Stay Updated
+              Contact Info
             </h3>
 
-            <p className="text-gray-600 text-sm leading-7 mb-6">
-              Subscribe to get exclusive offers and study tips.
-            </p>
+            <div className="space-y-5 text-gray-600 text-sm">
+              {/* Email */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full border flex items-center justify-center">
+                  <RiMailLine className="text-lg text-gray-700" />
+                </div>
+                <span>support@studynook.com</span>
+              </div>
 
-            <div className="flex items-center bg-gray-100 rounded-full overflow-hidden p-1 border border-gray-200">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 text-black outline-none bg-transparent text-sm"
-              />
+              {/* Location */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full border flex items-center justify-center">
+                  <RiMapPinLine className="text-lg text-gray-700" />
+                </div>
+                <span>Dhaka, Bangladesh</span>
+              </div>
 
-              <button className="w-11 h-11 rounded-full bg-green-500 hover:bg-green-600 transition duration-300 flex items-center justify-center text-white">
-                <RiArrowRightLine className="text-xl" />
-              </button>
+              {/* Phone */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full border flex items-center justify-center">
+                  <RiPhoneLine className="text-lg text-gray-700" />
+                </div>
+                <span>+880 1234 567890</span>
+              </div>
             </div>
           </div>
         </div>

@@ -102,9 +102,15 @@ const BookingCard = ({ roomData, userData }) => {
       <Button
         color="success"
         className="w-full font-semibold bg-[#059669]"
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          if (!userData) {
+            window.location.href = "/login";
+            return;
+          }
+          setOpen(true);
+        }}
       >
-        Book Now
+        {userData ? "Book Now" : "Login to Book"}
       </Button>
 
       {/* MODAL */}

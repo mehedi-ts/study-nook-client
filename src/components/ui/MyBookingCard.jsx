@@ -17,7 +17,6 @@ const MyBookingCard = ({ data }) => {
   const isConfirmed = status === true;
   const isFuture = new Date(date) >= new Date().setHours(0, 0, 0, 0);
 
-  // ✅ CANCEL BOOKING (PATCH)
   const handleCancel = async () => {
     const { data: tokenData } = await authClient.token();
 
@@ -48,14 +47,21 @@ const MyBookingCard = ({ data }) => {
     }
   };
 
+  // ✅ VALID IMAGE CHECK (ONLY STRING + NOT EMPTY)
+  const hasValidImage = typeof image === "string" && image.trim().length > 0;
+
   return (
     <div className="w-full rounded-3xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         {/* LEFT SIDE */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
-          {/* IMAGE */}
-          <div className="relative h-40 w-full overflow-hidden rounded-2xl md:h-32 md:w-52">
-            <Image src={image} alt={roomName} fill className="object-cover" />
+          {/* IMAGE (SAFE RENDER) */}
+          <div className="relative h-40 w-full overflow-hidden rounded-2xl md:h-32 md:w-52 flex items-center justify-center bg-gray-100">
+            {hasValidImage ? (
+              <Image src={image} alt={roomName} fill className="object-cover" />
+            ) : (
+              <span className="text-gray-500 text-sm">{roomName}</span>
+            )}
           </div>
 
           {/* INFO */}
@@ -106,7 +112,6 @@ const MyBookingCard = ({ data }) => {
 
         {/* ACTION */}
         <div className="flex items-center gap-3">
-          {/* CANCEL BUTTON */}
           {isConfirmed && isFuture && (
             <button
               onClick={() => setOpen(true)}

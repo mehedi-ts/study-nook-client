@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import {
   Button,
@@ -15,12 +16,15 @@ import {
 
 import { authClient } from "../../../lib/auth-client";
 import toast from "react-hot-toast";
+import { FaGoogle } from "react-icons/fa";
 
 const LoginClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const redirectPath = searchParams.get("redirect") || "/";
+
+  const [passwordError, setPasswordError] = useState("");
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -29,6 +33,24 @@ const LoginClient = () => {
     const userData = Object.fromEntries(formData.entries());
 
     const { email, password } = userData;
+
+    // ✅ Inline password validation
+    if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setPasswordError("Password must contain at least one uppercase letter");
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      setPasswordError("Password must contain at least one lowercase letter");
+      return;
+    }
+
+    setPasswordError("");
 
     const { error } = await authClient.signIn.email({
       email,
@@ -66,6 +88,7 @@ const LoginClient = () => {
         </div>
 
         <Form className="flex flex-col gap-5 w-full" onSubmit={onSubmit}>
+          {/* Email */}
           <TextField isRequired name="email" type="email" className="w-full">
             <Label>Email</Label>
             <Input placeholder="john@example.com" />
@@ -74,15 +97,25 @@ const LoginClient = () => {
             </div>
           </TextField>
 
-          <TextField isRequired minLength={8} name="password" type="password">
+          {/* Password */}
+          <TextField isRequired name="password" type="password">
             <Label>Password</Label>
             <Input placeholder="Enter your password" />
-            <Description>Must contain 8 characters</Description>
+            <Description>
+              Must be 8+ chars, 1 uppercase, 1 lowercase
+            </Description>
+
+            {/* Inline custom error */}
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            )}
+
             <div className="min-h-[20px] mt-1">
               <FieldError className="text-red-500 text-sm" />
             </div>
           </TextField>
 
+          {/* Submit */}
           <Button
             type="submit"
             className="w-full h-12 bg-[#10B981] text-white rounded-xl"
@@ -90,26 +123,27 @@ const LoginClient = () => {
             Login
           </Button>
 
+          {/* Divider */}
           <div className="flex items-center gap-3 w-full">
             <div className="flex-1 h-px bg-gray-200"></div>
             <span className="text-gray-400 text-sm">OR</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
+          {/* Google Login */}
           <button
             onClick={handleGoogleSignIn}
             type="button"
             className="w-full h-12 rounded-xl border border-gray-200 flex items-center justify-center gap-3"
           >
-            Continue with Google
+            <FaGoogle />
+            <span>Continue with Google</span>
           </button>
 
+          {/* Register link */}
           <p className="text-center text-sm text-gray-500">
             Don&apos;t have an account?
-            <Link
-              href="/register"
-              className="text-[#10B981] font-semibold ml-1"
-            >
+            <Link href="/sign-up" className="text-[#10B981] font-semibold ml-1">
               Register
             </Link>
           </p>

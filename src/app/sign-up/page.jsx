@@ -16,6 +16,7 @@ import {
 import { authClient } from "../../../lib/auth-client";
 
 import toast from "react-hot-toast";
+import { FaGoogle } from "react-icons/fa";
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -46,7 +47,7 @@ const SignUpPage = () => {
     // Success
     toast.success("Registration successful! Please login.");
     await authClient.signOut();
-    // Redirect to Login
+
     router.push("/login");
   };
 
@@ -63,19 +64,7 @@ const SignUpPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-10">
-      <div
-        className="
-          w-full 
-          max-w-md 
-          rounded-3xl 
-          border 
-          border-gray-200
-          bg-white
-          shadow-[0_10px_40px_rgba(0,0,0,0.08)]
-          p-6 
-          sm:p-8
-        "
-      >
+      <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-6 sm:p-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
@@ -88,95 +77,94 @@ const SignUpPage = () => {
         {/* Form */}
         <Form className="flex flex-col gap-1 w-full" onSubmit={onSubmit}>
           {/* Name */}
-          <div className="w-full">
-            <TextField isRequired name="name" type="text" className="w-full">
-              <Label className="text-sm font-medium text-gray-700 mb-1">
-                Name
-              </Label>
+          <TextField isRequired name="name" type="text" className="w-full">
+            <Label className="text-sm font-medium text-gray-700 mb-1">
+              Name
+            </Label>
 
-              <Input placeholder="John Doe" className="w-full" />
+            <Input placeholder="John Doe" className="w-full" />
 
-              <div className="min-h-5 mt-1">
-                <FieldError className="text-red-500 text-sm" />
-              </div>
-            </TextField>
-          </div>
+            <div className="min-h-5 mt-1">
+              <FieldError className="text-red-500 text-sm" />
+            </div>
+          </TextField>
 
           {/* Email */}
-          <div className="w-full">
-            <TextField
-              isRequired
-              name="email"
-              type="email"
-              className="w-full"
-              validate={(value) => {
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-                  return "Please enter a valid email address";
-                }
+          <TextField
+            isRequired
+            name="email"
+            type="email"
+            className="w-full"
+            validate={(value) => {
+              if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+                return "Please enter a valid email address";
+              }
+              return null;
+            }}
+          >
+            <Label className="text-sm font-medium text-gray-700 mb-1">
+              Email
+            </Label>
 
-                return null;
-              }}
-            >
-              <Label className="text-sm font-medium text-gray-700 mb-1">
-                Email
-              </Label>
+            <Input placeholder="john@example.com" className="w-full" />
 
-              <Input placeholder="john@example.com" className="w-full" />
-
-              <div className="min-h-[20px] mt-1">
-                <FieldError className="text-red-500 text-sm" />
-              </div>
-            </TextField>
-          </div>
+            <div className="min-h-[20px] mt-1">
+              <FieldError className="text-red-500 text-sm" />
+            </div>
+          </TextField>
 
           {/* Image URL */}
-          <div className="w-full">
-            <TextField isRequired name="image" type="text" className="w-full">
-              <Label className="text-sm font-medium text-gray-700 mb-1">
-                Photo URL
-              </Label>
+          <TextField isRequired name="image" type="text" className="w-full">
+            <Label className="text-sm font-medium text-gray-700 mb-1">
+              Photo URL
+            </Label>
 
-              <Input placeholder="Your profile image url" className="w-full" />
+            <Input placeholder="Your profile image url" className="w-full" />
 
-              <div className="min-h-[20px] mt-1">
-                <FieldError className="text-red-500 text-sm" />
-              </div>
-            </TextField>
-          </div>
+            <div className="min-h-[20px] mt-1">
+              <FieldError className="text-red-500 text-sm" />
+            </div>
+          </TextField>
 
-          {/* Password */}
-          <div className="w-full">
-            <TextField
-              isRequired
-              minLength={8}
-              name="password"
-              type="password"
-              className="w-full"
-              validate={(value) => {
-                if (value.length < 8) {
-                  return "Password must be at least 8 characters";
-                }
+          {/* Password (UPDATED) */}
+          <TextField
+            isRequired
+            minLength={8}
+            name="password"
+            type="password"
+            className="w-full"
+            validate={(value) => {
+              if (value.length < 8) {
+                return "Password must be at least 8 characters";
+              }
 
-                return null;
-              }}
-            >
-              <Label className="text-sm font-medium text-gray-700 mb-1">
-                Password
-              </Label>
+              if (!/[A-Z]/.test(value)) {
+                return "Password must contain at least one uppercase letter";
+              }
 
-              <Input placeholder="Enter your password" className="w-full" />
+              if (!/[a-z]/.test(value)) {
+                return "Password must contain at least one lowercase letter";
+              }
 
-              <Description className="text-xs text-gray-500 mt-1">
-                Must contain 8 characters
-              </Description>
+              return null;
+            }}
+          >
+            <Label className="text-sm font-medium text-gray-700 mb-1">
+              Password
+            </Label>
 
-              <div className="min-h-[20px] mt-1">
-                <FieldError className="text-red-500 text-sm" />
-              </div>
-            </TextField>
-          </div>
+            <Input placeholder="Enter your password" className="w-full" />
 
-          {/* Sign Up Button */}
+            <Description className="text-xs text-gray-500 mt-1">
+              Must be 8+ characters, include 1 uppercase & 1 lowercase
+            </Description>
+
+            <div className="min-h-[20px] mt-1">
+              <FieldError className="text-red-500 text-sm" />
+            </div>
+          </TextField>
+
+          {/* Button */}
           <Button
             type="submit"
             className="
@@ -200,13 +188,11 @@ const SignUpPage = () => {
           {/* Divider */}
           <div className="flex items-center gap-3 w-full">
             <div className="flex-1 h-px bg-gray-200"></div>
-
             <span className="text-gray-400 text-sm">OR</span>
-
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
-          {/* Google Sign Up */}
+          {/* Google */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -228,51 +214,16 @@ const SignUpPage = () => {
               font-medium
             "
           >
-            <svg
-              aria-label="Google logo"
-              width="18"
-              height="18"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-            >
-              <g>
-                <path d="m0 0H512V512H0" fill="#fff"></path>
-
-                <path
-                  fill="#34a853"
-                  d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
-                ></path>
-
-                <path
-                  fill="#4285f4"
-                  d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
-                ></path>
-
-                <path
-                  fill="#fbbc02"
-                  d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
-                ></path>
-
-                <path
-                  fill="#ea4335"
-                  d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
-                ></path>
-              </g>
-            </svg>
-            Continue with Google
+            <FaGoogle />
+            <span>Continue with Google</span>
           </button>
 
-          {/* Login Link */}
+          {/* Login link */}
           <p className="text-center text-sm text-gray-500 mt-2">
             Already have an account?
             <Link
               href="/login"
-              className="
-                text-[#10B981]
-                font-semibold
-                ml-1
-                hover:underline
-              "
+              className="text-[#10B981] font-semibold ml-1 hover:underline"
             >
               Login
             </Link>
