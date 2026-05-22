@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import RoomCard from "@/components/ui/RoomCard";
+import Link from "next/link";
 
 const amenitiesList = [
   "Whiteboard",
@@ -14,12 +15,11 @@ const amenitiesList = [
 
 const AllRoomsClient = () => {
   const [rooms, setRooms] = useState([]);
-  const [isFiltering, setIsFiltering] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ added
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-
   const [selectedAmenities, setSelectedAmenities] = useState([]);
 
   // SEARCH DEBOUNCE
@@ -38,7 +38,7 @@ const AllRoomsClient = () => {
     const getRooms = async () => {
       try {
         setError("");
-        setIsFiltering(true);
+        setLoading(true); // ✅ start loading
 
         const params = new URLSearchParams();
 
@@ -70,7 +70,7 @@ const AllRoomsClient = () => {
           setError("Something went wrong!");
         }
       } finally {
-        setIsFiltering(false);
+        setLoading(false); // ✅ stop loading
       }
     };
 
@@ -79,7 +79,6 @@ const AllRoomsClient = () => {
     return () => controller.abort();
   }, [debouncedSearch, selectedAmenities]);
 
-  // TOGGLE AMENITY
   const handleAmenityChange = (item) => {
     setSelectedAmenities((prev) =>
       prev.includes(item)
@@ -88,7 +87,6 @@ const AllRoomsClient = () => {
     );
   };
 
-  // RESET
   const handleReset = () => {
     setSearch("");
     setDebouncedSearch("");
@@ -98,7 +96,7 @@ const AllRoomsClient = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* SIDEBAR */}
+        {/* SIDEBAR (UNCHANGED) */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 rounded-[28px] bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)] min-h-[700px]">
             <div className="flex items-start justify-between mb-8">
@@ -164,60 +162,56 @@ const AllRoomsClient = () => {
 
         {/* ROOMS */}
         <div className="lg:col-span-9">
-          <div className="relative min-h-[1200px]">
-            {/* FILTER LOADING OVERLAY */}
-            {isFiltering && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-sm">
-                <div className="h-10 w-10 border-4 border-[#10b981] border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            )}
-
-            <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-4xl font-bold">
-                  Find your ideal{" "}
-                  <span className="text-[#10b981]">study space</span>
-                </h1>
-                <p className="text-gray-500 mt-2">Comfortable, modern rooms</p>
-              </div>
-
-              <div className="bg-[#10b981] text-white px-6 py-4 rounded-2xl mt-4 md:mt-0">
-                <p className="text-sm">Available Rooms</p>
-                <h3 className="text-3xl font-bold">{rooms.length}</h3>
-              </div>
+          <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-4xl font-bold">
+                Find your ideal{" "}
+                <span className="text-[#10b981]">study space</span>
+              </h1>
+              <p className="text-gray-500 mt-2">Comfortable, modern rooms</p>
             </div>
 
-            {error && (
-              <div className="mb-6 bg-red-50 text-red-600 px-4 py-3 rounded-xl">
-                {error}
-              </div>
-            )}
-
-            {isFiltering && rooms.length === 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-[280px] rounded-2xl bg-gray-100 animate-pulse"
-                  />
-                ))}
-              </div>
-            )}
-
-            {!isFiltering && rooms.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {rooms.map((room) => (
-                  <RoomCard key={room._id} room={room} />
-                ))}
-              </div>
-            )}
-
-            {!isFiltering && rooms.length === 0 && (
-              <div className="flex items-center justify-center min-h-[600px] text-gray-500">
-                No Rooms Found
-              </div>
-            )}
+            <div className="bg-[#10b981] text-white px-6 py-4 rounded-2xl mt-4 md:mt-0">
+              <p className="text-sm">Available Rooms</p>
+              <h3 className="text-3xl font-bold">{rooms.length}</h3>
+            </div>
           </div>
+
+          {error && (
+            <div className="mb-6 bg-red-50 text-red-600 px-4 py-3 rounded-xl">
+              {error}
+            </div>
+          )}
+
+          {/* ✅ SIMPLE LOADING */}
+          {loading && (
+            <div className="flex justify-center py-20">
+              <div className="h-8 w-8 border-4 border-[#10b981] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+
+          {/* ROOMS */}
+          {!loading && rooms.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {rooms.map((room) => (
+                <RoomCard key={room._id} room={room} />
+              ))}
+            </div>
+          ) : (
+            !loading && (
+              <div className="flex flex-col items-center justify-center min-h-[600px] text-gray-500 gap-4">
+                <p>No Rooms Found</p>
+
+                {/* ✅ Link instead of router push */}
+                <Link
+                  href="/add-room"
+                  className="px-6 py-3 rounded-2xl bg-[#10b981] text-white font-semibold hover:bg-[#0ea371] transition"
+                >
+                  Add Room
+                </Link>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>
