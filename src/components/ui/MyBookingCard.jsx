@@ -35,7 +35,7 @@ const MyBookingCard = ({ data }) => {
       const result = await res.json();
 
       if (!result.success) {
-        alert(result.message || "Cancel failed");
+        toast.error(result.message || "Cancel failed");
         return;
       }
 
