@@ -1,4 +1,7 @@
-import React from "react";
+export const metadata = {
+  title: "My Bookings | Study Nook",
+  description: "View your booked study rooms",
+};
 import { auth } from "../../../lib/auth";
 import { headers } from "next/headers";
 import { getMyBookingByUserId } from "../../../lib/data";

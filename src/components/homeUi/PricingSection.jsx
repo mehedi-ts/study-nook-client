@@ -6,7 +6,7 @@ const plans = [
     id: 1,
     name: "Daily Pass",
     desc: "Perfect for short visits",
-    price: "৳200",
+    price: "$200",
     duration: "/ day",
     button: "Get Daily Pass",
     popular: false,
@@ -21,7 +21,7 @@ const plans = [
     id: 2,
     name: "Weekly Plan",
     desc: "Best for regular users",
-    price: "৳999",
+    price: "$999",
     duration: "/ week",
     button: "Get Weekly Plan",
     popular: true,
@@ -36,7 +36,7 @@ const plans = [
     id: 3,
     name: "Monthly Premium",
     desc: "For ultimate productivity",
-    price: "৳2999",
+    price: "$2999",
     duration: "/ month",
     button: "Get Monthly Plan",
     popular: false,
@@ -50,7 +50,7 @@ const plans = [
 ];
 const PricingSection = () => {
   return (
-    <section className="w-full py-20 px-4 md:px-6">
+    <section className="w-full py-10 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <div className="mb-12">

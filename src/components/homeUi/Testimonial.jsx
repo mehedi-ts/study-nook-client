@@ -31,7 +31,7 @@ const testimonials = [
 
 const Testimonial = () => {
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 py-20 overflow-hidden">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-10 overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Left Content */}
         <div className="space-y-5">

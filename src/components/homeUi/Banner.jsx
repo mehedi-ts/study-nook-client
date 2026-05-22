@@ -5,7 +5,7 @@ import { ArrowRight, Star } from "lucide-react";
 
 const Banner = () => {
   return (
-    <section className="relative overflow-hidden rounded-[40px] h-[620px] lg:h-[700px]">
+    <section className="relative border-2 border-[#cccccc] overflow-hidden md:rounded-[40px] rounded[10px] h-[620px] lg:h-[700px]">
       {/* Background Image */}
       <Image
         src="/image/bannerImg.png"

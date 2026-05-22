@@ -6,63 +6,45 @@ import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { authClient } from "../../../lib/auth-client";
-
-import { Avatar, Button } from "@heroui/react";
-
+import { Button } from "@heroui/react";
 import { ChevronDown, Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const { data: session } = authClient.useSession();
-
   const user = session?.user;
 
   const pathname = usePathname();
 
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Public Links
   const publicLinks = [
-    {
-      name: "Home",
-      href: "/",
-    },
-    {
-      name: "All Rooms",
-      href: "/all-rooms",
-    },
+    { name: "Home", href: "/" },
+    { name: "All Rooms", href: "/all-rooms" },
   ];
 
-  // Private Links
   const privateLinks = [
-    {
-      name: "Add Room",
-      href: "/add-room",
-    },
-    {
-      name: "My Listings",
-      href: "/my-room",
-    },
-    {
-      name: "My Bookings",
-      href: "/my-bookings",
-    },
+    { name: "Add Room", href: "/add-room" },
+    { name: "My Listings", href: "/my-room" },
+    { name: "My Bookings", href: "/my-bookings" },
   ];
 
-  // Active Route Style
   const navLinkStyle = (href) =>
-    `relative text-[16px] font-medium transition pb-1
-    ${
+    `relative text-[16px] font-medium transition pb-1 ${
       pathname === href
-        ? "text-[#10b981] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-[2px] after:bg-[#10b981]"
-        : "text-gray-700 hover:text-[#10b981]"
+        ? "text-emerald-500 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-[2px] after:bg-emerald-500"
+        : "text-gray-700 hover:text-emerald-500"
     }`;
 
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
-    <nav className="sticky top-0 z-50 bg-[#f8f5f0]/90 backdrop-blur-md border-b border-gray-200">
+    <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
             <Image
@@ -70,13 +52,12 @@ const Navbar = () => {
               width={160}
               height={160}
               alt="logo"
-              className="w-[130px] md:w-[160px]"
+              className="w-[120px] md:w-[150px]"
             />
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-8">
-            {/* Public Links */}
             {publicLinks.map((link) => (
               <Link
                 key={link.href}
@@ -87,7 +68,6 @@ const Navbar = () => {
               </Link>
             ))}
 
-            {/* Private Links */}
             {user &&
               privateLinks.map((link) => (
                 <Link
@@ -100,25 +80,34 @@ const Navbar = () => {
               ))}
           </div>
 
-          {/* Right Side */}
+          {/* Right Side (Desktop) */}
           <div className="hidden lg:flex items-center gap-3 relative">
             {user ? (
               <>
                 {/* Profile Button */}
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-3 border border-gray-200 rounded-full px-2 py-2 bg-white shadow-sm hover:shadow-md transition"
+                  className="flex items-center gap-3 border border-gray-200 rounded-full px-2 py-1.5 bg-white/80 backdrop-blur-md shadow-sm hover:shadow-md transition"
                 >
-                  <Avatar
-                    src={user?.image || "https://i.ibb.co/4pDNDk1/avatar.png"}
-                    className="w-11 h-11"
-                  />
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-emerald-500 flex items-center justify-center text-white font-semibold">
+                    {user?.image ? (
+                      <Image
+                        src={user.image}
+                        alt="avatar"
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      getInitials(user?.name)
+                    )}
+                  </div>
 
                   <div className="text-left">
                     <h3 className="text-sm font-semibold text-gray-800 leading-none">
                       {user?.name}
                     </h3>
-
                     <p className="text-xs text-gray-500 mt-1">My Account</p>
                   </div>
 
@@ -132,35 +121,38 @@ const Navbar = () => {
 
                 {/* Dropdown */}
                 {profileOpen && (
-                  <div className="absolute top-20 right-0 w-[320px] bg-white rounded-3xl border border-gray-200 shadow-2xl p-5">
-                    {/* User Info */}
+                  <div className="absolute top-20 right-0 w-[320px] bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl rounded-3xl p-5">
                     <div className="flex items-center gap-4">
-                      <Avatar
-                        src={
-                          user?.image || "https://i.ibb.co/4pDNDk1/avatar.png"
-                        }
-                        className="w-16 h-16"
-                      />
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-emerald-500 flex items-center justify-center text-white font-semibold text-lg">
+                        {user?.image ? (
+                          <Image
+                            src={user.image}
+                            alt="avatar"
+                            width={56}
+                            height={56}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          getInitials(user?.name)
+                        )}
+                      </div>
 
                       <div>
                         <h2 className="font-semibold text-gray-800 text-lg">
                           {user?.name}
                         </h2>
-
                         <p className="text-sm text-gray-500">{user?.email}</p>
                       </div>
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-[1px] bg-gray-200 my-5"></div>
+                    <div className="h-[1px] bg-gray-200 my-5" />
 
-                    {/* Dropdown Links */}
                     <div className="flex flex-col gap-2">
                       <Link
-                        href="/my-listings"
+                        href="/my-room"
                         className={`px-4 py-3 rounded-2xl transition font-medium ${
-                          pathname === "/my-listings"
-                            ? "bg-[#10b981]/10 text-[#10b981]"
+                          pathname === "/my-room"
+                            ? "bg-emerald-500/10 text-emerald-500"
                             : "hover:bg-gray-100 text-gray-700"
                         }`}
                       >
@@ -171,7 +163,7 @@ const Navbar = () => {
                         href="/my-bookings"
                         className={`px-4 py-3 rounded-2xl transition font-medium ${
                           pathname === "/my-bookings"
-                            ? "bg-[#10b981]/10 text-[#10b981]"
+                            ? "bg-emerald-500/10 text-emerald-500"
                             : "hover:bg-gray-100 text-gray-700"
                         }`}
                       >
@@ -179,10 +171,8 @@ const Navbar = () => {
                       </Link>
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-[1px] bg-gray-200 my-5"></div>
+                    <div className="h-[1px] bg-gray-200 my-5" />
 
-                    {/* Logout */}
                     <button
                       onClick={async () => {
                         await authClient.signOut();
@@ -203,7 +193,7 @@ const Navbar = () => {
                 </Link>
 
                 <Link href="/sign-up">
-                  <Button radius="full" className="bg-[#10b981] text-white">
+                  <Button radius="full" className="bg-emerald-500 text-white">
                     Register
                   </Button>
                 </Link>
@@ -211,80 +201,104 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Button */}
           <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden">
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="lg:hidden pb-5">
-            <div className="flex flex-col gap-4">
-              {/* Public Links */}
-              {publicLinks.map((link) => (
+      {/* ✅ Mobile Menu */}
+      {menuOpen && (
+        <div className="lg:hidden absolute top-16 left-0 w-full bg-white border-t border-gray-100 shadow-lg z-50">
+          {/* Profile */}
+          {user && (
+            <div className="p-4 border-b border-gray-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-emerald-500 flex items-center justify-center text-white font-semibold">
+                {user?.image ? (
+                  <Image
+                    src={user.image}
+                    alt="avatar"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  getInitials(user?.name)
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-800 text-sm">
+                  {user?.name}
+                </h3>
+                <p className="text-xs text-gray-500">{user?.email}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Links */}
+          <div className="flex flex-col p-2">
+            {publicLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-700"
+              >
+                {link.name}
+              </Link>
+            ))}
+
+            {user &&
+              privateLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`font-medium ${
-                    pathname === link.href ? "text-[#10b981]" : "text-gray-700"
-                  }`}
+                  className="px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-700"
                 >
                   {link.name}
                 </Link>
               ))}
-
-              {/* Private Links */}
-              {user &&
-                privateLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`font-medium ${
-                      pathname === link.href
-                        ? "text-[#10b981]"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-
-              {/* Logout */}
-              {user && (
-                <Button
-                  color="danger"
-                  variant="flat"
-                  onPress={async () => {
-                    await authClient.signOut();
-                  }}
-                >
-                  Logout
-                </Button>
-              )}
-
-              {/* Auth Buttons */}
-              {!user && (
-                <div className="flex flex-col gap-3 pt-3">
-                  <Link href="/login">
-                    <Button fullWidth variant="bordered">
-                      Login
-                    </Button>
-                  </Link>
-
-                  <Link href="/sign-up">
-                    <Button fullWidth className="bg-[#10b981] text-white">
-                      Register
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
-        )}
-      </div>
+
+          {/* Logout */}
+          {user && (
+            <div className="p-3 border-t border-gray-100">
+              <button
+                onClick={async () => {
+                  await authClient.signOut();
+                  setMenuOpen(false);
+                }}
+                className="w-full px-4 py-3 rounded-xl bg-red-50 text-red-500 font-medium hover:bg-red-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+
+          {/* Auth */}
+          {!user && (
+            <div className="p-3 border-t border-gray-100 flex flex-col gap-2">
+              <Link href="/login" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full" variant="bordered" radius="full">
+                  Login
+                </Button>
+              </Link>
+
+              <Link href="/sign-up" onClick={() => setMenuOpen(false)}>
+                <Button
+                  className="w-full bg-emerald-500 text-white"
+                  radius="full"
+                >
+                  Register
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, X, Library } from "lucide-react";
 import { authClient } from "../../../lib/auth-client";
+import toast from "react-hot-toast";
 
 const MyBookingCard = ({ data }) => {
   if (!data) return null;
@@ -38,7 +39,7 @@ const MyBookingCard = ({ data }) => {
         return;
       }
 
-      alert("Booking cancelled successfully");
+      toast.success("Booking cancelled successfully");
 
       window.location.reload();
     } catch (error) {

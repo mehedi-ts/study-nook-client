@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Room Details - Study Nook",
+  description:
+    "View detailed information about this study room and book it easily.",
+};
 import Image from "next/image";
 
 import { headers } from "next/headers";

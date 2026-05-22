@@ -20,11 +20,6 @@ const AvailableStudyRooms = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-black leading-tight">
             Available Study Rooms
           </h2>
-
-          <p className="text-black/60 mt-4 text-base md:text-lg">
-            Discover modern, quiet, and productive study environments designed
-            for focus and collaboration.
-          </p>
         </div>
 
         {/* GRID */}

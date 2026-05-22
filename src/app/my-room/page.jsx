@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "My Listings | Study Nook",
+  description: "View and manage your listed study rooms",
+};
+
 import { headers } from "next/headers";
 import Image from "next/image";
 
