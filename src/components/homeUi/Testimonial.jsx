@@ -51,7 +51,7 @@ const Testimonial = () => {
         {/* Right Content */}
         <div className="lg:col-span-3 relative">
           {/* Navigation */}
-          <div className="absolute -top-16 right-0 flex items-center gap-3">
+          {/* <div className="absolute -top-16 right-0 flex items-center gap-3">
             <button className="w-11 h-11 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-700 hover:bg-zinc-100 transition-all duration-300">
               <HiArrowLeft className="text-lg" />
             </button>
@@ -59,7 +59,7 @@ const Testimonial = () => {
             <button className="w-11 h-11 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-700 hover:bg-zinc-100 transition-all duration-300">
               <HiArrowRight className="text-lg" />
             </button>
-          </div>
+          </div> */}
 
           {/* Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
