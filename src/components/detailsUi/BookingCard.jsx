@@ -101,7 +101,7 @@ const BookingCard = ({ roomData, userData }) => {
       {/* BUTTON */}
       <Button
         color="success"
-        className="w-full font-semibold"
+        className="w-full font-semibold bg-[#059669]"
         onPress={() => setOpen(true)}
       >
         Book Now
@@ -197,7 +197,10 @@ const BookingCard = ({ roomData, userData }) => {
                   {error && <p className="text-sm text-red-500">{error}</p>}
 
                   {/* SUBMIT */}
-                  <Button type="submit" className="w-full font-semibold">
+                  <Button
+                    type="submit"
+                    className="w-full font-semibold bg-[#059669]"
+                  >
                     Confirm Booking
                   </Button>
                 </form>

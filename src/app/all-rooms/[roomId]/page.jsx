@@ -135,7 +135,7 @@ const RoomDetailsPage = async ({ params }) => {
             <LuMapPinHouse size={18} />
 
             <span className="text-sm">
-              Floor {floor || "N/A"} • StudyNook Workspace
+              {floor || "N/A"} • StudyNook Workspace
             </span>
           </div>
 

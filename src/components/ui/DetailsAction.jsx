@@ -29,7 +29,7 @@ const DetailsAction = ({ userData, userEmail, room_id, roomData }) => {
       className={` gap-2  ${userEmail === userData.email ? "flex" : "hidden"}`}
     >
       <Link href={`/all-rooms/${room_id}/edit`}>
-        <Button className="rounded-lg w-full">
+        <Button className="rounded-lg w-full bg-[#059669]">
           <Edit></Edit>Edit
         </Button>
       </Link>

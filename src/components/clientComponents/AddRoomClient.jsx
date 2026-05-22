@@ -159,24 +159,28 @@ const AddRoomClient = () => {
 
               <TextField isRequired name="image">
                 <Label>Image URL</Label>
-                <Input className="w-full" />
+                <Input className="w-full" placeholder="http://" />
               </TextField>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <TextField isRequired name="floor">
                   <Label>Floor</Label>
-                  <Input className="w-full" />
+                  <Input className="w-full" placeholder="e.g. 4th floor" />
                 </TextField>
 
                 <TextField isRequired name="capacity">
                   <Label>Capacity</Label>
-                  <Input type="number" className="w-full" />
+                  <Input
+                    type="number"
+                    className="w-full"
+                    placeholder="e.g. 3"
+                  />
                 </TextField>
               </div>
 
               <TextField isRequired name="hourlyRate">
                 <Label>Hourly Rate</Label>
-                <Input type="number" className="w-full" />
+                <Input type="number" className="w-full" placeholder="e.g. 99" />
               </TextField>
 
               <div>

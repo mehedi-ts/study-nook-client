@@ -82,37 +82,28 @@ const Footer = () => {
 
               <li>
                 <Link
-                  href="/rooms"
+                  href="/all-rooms"
                   className="hover:text-green-500 transition duration-300"
                 >
-                  Study Rooms
+                  All Rooms
                 </Link>
               </li>
 
               <li>
                 <Link
-                  href="/membership"
+                  href="/my-bookings"
                   className="hover:text-green-500 transition duration-300"
                 >
-                  Membership
+                  My Bookings
                 </Link>
               </li>
 
               <li>
                 <Link
-                  href="/reviews"
+                  href="/my-room"
                   className="hover:text-green-500 transition duration-300"
                 >
-                  Reviews
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  href="/contact"
-                  className="hover:text-green-500 transition duration-300"
-                >
-                  Contact
+                  My Rooms
                 </Link>
               </li>
             </ul>
