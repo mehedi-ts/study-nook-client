@@ -4,16 +4,22 @@ import Link from "next/link";
 import React, { useId } from "react";
 import { deleteRoom } from "../../../lib/data";
 import { redirect } from "next/navigation";
+import toast from "react-hot-toast";
+import { authClient } from "../../../lib/auth-client";
 
 const DetailsAction = ({ userData, userEmail, room_id, roomData }) => {
-  console.log(userData, room_id, userEmail);
   const handleDelete = async (id) => {
-    const req = await fetch(`${process.env.NEXT_API}/all-rooms/${id}`, {
+    const { data: tokenData } = await authClient.token();
+    const req = await fetch(`${process.env.NEXT_PUBLIC_API}/all-rooms/${id}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${tokenData?.token}`,
+      },
     });
     const res = await req.json();
     console.log(res);
     if (res.deletedCount > 0 || res.acknowledged === true) {
+      toast.success("Room deleted successfully");
       redirect("/all-rooms");
     }
   };

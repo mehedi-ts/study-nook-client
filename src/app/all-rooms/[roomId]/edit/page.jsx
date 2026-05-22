@@ -16,7 +16,8 @@ import {
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { getRoomById } from "../../../../../lib/data";
+import toast from "react-hot-toast";
+import { authClient } from "../../../../../lib/auth-client";
 
 const amenitiesList = [
   "Whiteboard",
@@ -34,7 +35,6 @@ const EditRoomForm = () => {
   const [roomData, setRoomData] = useState(null);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
 
-  // ✅ controlled form state (IMPORTANT FIX)
   const [form, setForm] = useState({
     roomName: "",
     description: "",
@@ -44,15 +44,28 @@ const EditRoomForm = () => {
     hourlyRate: "",
   });
 
+  // ✅ LOCAL getRoomById (moved inside page)
+  const getRoomById = async (id, token) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/all-rooms/${id}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.json();
+  };
+
   // Fetch data
   useEffect(() => {
     const fetchRoom = async () => {
       if (!roomId) return;
 
-      const data = await getRoomById(roomId);
+      const { data: tokenData } = await authClient.token();
+
+      const data = await getRoomById(roomId, tokenData?.token);
+
       setRoomData(data);
 
-      // ✅ set form values ONCE data arrives
       setForm({
         roomName: data.roomName || "",
         description: data.description || "",
@@ -68,21 +81,20 @@ const EditRoomForm = () => {
     fetchRoom();
   }, [roomId]);
 
-  // handle input change
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // amenities toggle
   const handleAmenityChange = (item) => {
     setSelectedAmenities((prev) =>
       prev.includes(item) ? prev.filter((a) => a !== item) : [...prev, item],
     );
   };
 
-  // submit
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    const { data: tokenData } = await authClient.token();
 
     if (!roomData?._id) return;
 
@@ -93,22 +105,38 @@ const EditRoomForm = () => {
 
     try {
       const req = await fetch(
-        `${process.env.NEXT_API}/all-rooms/${roomData._id}`,
+        `${process.env.NEXT_PUBLIC_API}/all-rooms/${roomData._id}`,
         {
           method: "PATCH",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify(updatedRoom),
         },
       );
 
       const res = await req.json();
 
+      // ✅ SUCCESS
       if (res.modifiedCount > 0) {
-        alert("Room Updated Successfully");
-        router.push("/all-rooms");
+        toast.success("Room Updated Successfully");
+
+        // ✅ redirect to details page
+        setTimeout(() => {
+          router.push(`/all-rooms/${roomData._id}`);
+        }, 800);
+
+        return;
       }
+
+      // ❌ FAILED UPDATE
+      alert("Failed to update room");
     } catch (error) {
       console.log(error);
+
+      // ❌ SERVER ERROR
+      alert("Something went wrong");
     }
   };
 
@@ -119,7 +147,6 @@ const EditRoomForm = () => {
   return (
     <div className="min-h-screen bg-[#f6f7f9] py-10 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Back */}
         <Link
           href="/all-rooms"
           className="flex items-center gap-2 text-gray-600 mb-8"
@@ -128,14 +155,11 @@ const EditRoomForm = () => {
           Study Rooms
         </Link>
 
-        {/* Heading */}
         <h1 className="text-4xl font-bold mb-10">Edit Room</h1>
 
-        {/* Form */}
         <div className="bg-white p-6 md:p-10 rounded-[32px] border">
           <Form onSubmit={onSubmit}>
             <div className="space-y-6">
-              {/* Room Name */}
               <TextField>
                 <Label>Room Name</Label>
                 <Input
@@ -146,7 +170,6 @@ const EditRoomForm = () => {
                 />
               </TextField>
 
-              {/* Description */}
               <TextField>
                 <Label>Description</Label>
                 <TextArea
@@ -158,7 +181,6 @@ const EditRoomForm = () => {
                 />
               </TextField>
 
-              {/* Image */}
               <TextField>
                 <Label>Image</Label>
                 <Input
@@ -169,7 +191,6 @@ const EditRoomForm = () => {
                 />
               </TextField>
 
-              {/* Floor + Capacity */}
               <div className="grid md:grid-cols-2 gap-6">
                 <TextField>
                   <Label>Floor</Label>
@@ -193,7 +214,6 @@ const EditRoomForm = () => {
                 </TextField>
               </div>
 
-              {/* Hourly Rate */}
               <TextField>
                 <Label>Hourly Rate</Label>
                 <Input
@@ -205,7 +225,6 @@ const EditRoomForm = () => {
                 />
               </TextField>
 
-              {/* Amenities */}
               <div>
                 <h2 className="text-xl font-bold mb-4">Amenities</h2>
 
@@ -223,21 +242,13 @@ const EditRoomForm = () => {
                             : "border-gray-200"
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            isSelected={checked}
-                            onValueChange={() => handleAmenityChange(item)}
-                            classNames={{ base: "hidden" }}
-                          />
-                          <span>{item}</span>
-                        </div>
+                        <span>{item}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex justify-between pt-6">
                 <Button
                   type="button"

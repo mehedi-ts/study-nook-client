@@ -5,6 +5,9 @@ import { auth } from "../../../lib/auth";
 import { getMyRoomsByUserId } from "../../../lib/data";
 
 const MyRoomsPage = async () => {
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   // GET SESSION
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -22,7 +25,7 @@ const MyRoomsPage = async () => {
   }
 
   // FETCH MY ROOMS
-  const result = await getMyRoomsByUserId(user.id);
+  const result = await getMyRoomsByUserId(user.id, token);
 
   const rooms = result || [];
 

@@ -5,13 +5,25 @@ import { getMyBookingByUserId } from "../../../lib/data";
 import MyBookingCard from "@/components/ui/MyBookingCard";
 
 const MyBookingPage = async () => {
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   const userData = session?.user;
 
-  const bookingData = await getMyBookingByUserId(userData?.id);
+  const bookingRes = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/bookings/user/${userData?.id}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const bookingData = await bookingRes.json();
 
   const hasBookings = bookingData && bookingData.length > 0;
 

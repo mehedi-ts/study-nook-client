@@ -3,6 +3,9 @@ import Link from "next/link";
 import React from "react";
 import { RiMapPinLine, RiGroupLine, RiArrowRightLine } from "react-icons/ri";
 
+const fallbackImage =
+  "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1200&auto=format&fit=crop";
+
 const RoomCard = ({ room }) => {
   const {
     _id,
@@ -15,14 +18,21 @@ const RoomCard = ({ room }) => {
     hourlyRate,
   } = room;
 
+  // SAFE IMAGE URL
+  const imageUrl =
+    image && typeof image === "string" && image.startsWith("http")
+      ? image
+      : fallbackImage;
+
   return (
     <div className="w-full h-full flex flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       {/* Image */}
       <div className="relative h-60 w-full shrink-0 overflow-hidden">
         <Image
-          src={image}
-          alt={roomName}
+          src={imageUrl}
+          alt={roomName || "Room Image"}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 hover:scale-105"
         />
       </div>

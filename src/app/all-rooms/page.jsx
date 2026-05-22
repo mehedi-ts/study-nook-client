@@ -8,22 +8,44 @@ const amenitiesList = ["WiFi", "AC", "Whiteboard", "Projector"];
 const AllRoomsPage = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [selectedAmenities, setSelectedAmenities] = useState([]);
 
+  // SEARCH DEBOUNCE
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
   // FETCH ROOMS
   useEffect(() => {
+    const controller = new AbortController();
+
     const getRooms = async () => {
       try {
-        setLoading(true);
+        // FIRST PAGE LOAD
+        if (rooms.length === 0) {
+          setLoading(true);
+        } else {
+          // FILTERING STATE
+          setIsFiltering(true);
+        }
+
+        setError("");
 
         const params = new URLSearchParams();
 
         // SEARCH
-        if (search.trim()) {
-          params.append("search", search.trim());
+        if (debouncedSearch.trim()) {
+          params.append("search", debouncedSearch.trim());
         }
 
         // AMENITIES
@@ -32,40 +54,49 @@ const AllRoomsPage = () => {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_API}/all-rooms?${params.toString()}`,
+          `${process.env.NEXT_PUBLIC_API}/all-rooms?${params.toString()}`,
           {
             cache: "no-store",
+            signal: controller.signal,
           },
         );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch rooms");
+        }
 
         const data = await res.json();
 
         setRooms(data);
-        console.log("room", data);
       } catch (error) {
-        console.log(error);
+        if (error.name !== "AbortError") {
+          console.log(error);
+          setError("Something went wrong!");
+        }
       } finally {
         setLoading(false);
+        setIsFiltering(false);
       }
     };
 
     getRooms();
-  }, [search, selectedAmenities]);
+
+    return () => controller.abort();
+  }, [debouncedSearch, selectedAmenities]);
 
   // TOGGLE AMENITY
   const handleAmenityChange = (item) => {
-    if (selectedAmenities.includes(item)) {
-      setSelectedAmenities(
-        selectedAmenities.filter((amenity) => amenity !== item),
-      );
-    } else {
-      setSelectedAmenities([...selectedAmenities, item]);
-    }
+    setSelectedAmenities((prev) =>
+      prev.includes(item)
+        ? prev.filter((amenity) => amenity !== item)
+        : [...prev, item],
+    );
   };
 
   // RESET
   const handleReset = () => {
     setSearch("");
+    setDebouncedSearch("");
     setSelectedAmenities([]);
   };
 
@@ -74,7 +105,7 @@ const AllRoomsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* SIDEBAR */}
         <div className="lg:col-span-3">
-          <div className="sticky top-24 rounded-[28px] bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)] min-h-[650px]">
+          <div className="sticky top-24 rounded-[28px] bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)] min-h-[700px]">
             {/* HEADER */}
             <div className="flex items-start justify-between mb-8">
               <div>
@@ -99,30 +130,13 @@ const AllRoomsPage = () => {
                 Search by room name
               </label>
 
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search rooms..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-2xl bg-[#f8fafc] px-5 py-4 pr-12 text-[15px] outline-none transition-all focus:ring-2 focus:ring-[#10b981]"
-                />
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
-                  />
-                </svg>
-              </div>
+              <input
+                type="text"
+                placeholder="Search rooms..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-2xl bg-[#f8fafc] px-5 py-4 text-[15px] outline-none transition-all focus:ring-2 focus:ring-[#10b981]"
+              />
             </div>
 
             {/* AMENITIES */}
@@ -184,98 +198,98 @@ const AllRoomsPage = () => {
         </div>
 
         {/* ROOMS */}
-        <div className="lg:col-span-9 min-h-[700px]">
-          {/* TOP */}
-          <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                Find your ideal
-                <span className="text-[#10b981]"> study space</span>
-              </h1>
+        <div className="lg:col-span-9">
+          <div className="relative min-h-[1200px]">
+            {/* FILTER LOADING OVERLAY */}
+            {isFiltering && (
+              <div className="absolute inset-0 z-20 rounded-3xl bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full border-4 border-[#10b981] border-t-transparent animate-spin"></div>
+              </div>
+            )}
 
-              <p className="text-gray-500 mt-3 text-base">
-                Comfortable, modern and peaceful study rooms
-              </p>
-            </div>
+            {/* TOP */}
+            <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                  Find your ideal
+                  <span className="text-[#10b981]"> study space</span>
+                </h1>
 
-            <div className="rounded-3xl bg-[#10b981] px-7 py-5 text-white shadow-xl w-fit">
-              <p className="text-sm opacity-90">Available Rooms</p>
-
-              <h3 className="text-4xl font-bold mt-1">{rooms.length}</h3>
-            </div>
-          </div>
-
-          {/* LOADING */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div
-                  key={item}
-                  className="overflow-hidden rounded-3xl bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] animate-pulse"
-                >
-                  <div className="h-56 bg-gray-200"></div>
-
-                  <div className="p-5 space-y-4">
-                    <div className="h-5 rounded bg-gray-200 w-3/4"></div>
-
-                    <div className="h-4 rounded bg-gray-200 w-full"></div>
-
-                    <div className="h-4 rounded bg-gray-200 w-2/3"></div>
-
-                    <div className="flex gap-2 pt-3">
-                      <div className="h-8 w-20 rounded-full bg-gray-200"></div>
-
-                      <div className="h-8 w-20 rounded-full bg-gray-200"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : rooms.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {rooms.map((room) => (
-                <RoomCard key={room._id} room={room} />
-              ))}
-            </div>
-          ) : (
-            // EMPTY STATE
-            <div className="min-h-[500px] flex items-center justify-center">
-              <div className="text-center">
-                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#10b981]/10">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-10 w-10 text-[#10b981]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M8 9l3 3-3 3m5 0h3"
-                    />
-                  </svg>
-                </div>
-
-                <h2 className="text-3xl font-bold text-gray-800">
-                  No Rooms Found
-                </h2>
-
-                <p className="mt-3 text-gray-500 max-w-md">
-                  We couldn’t find any rooms matching your current search or
-                  filters.
+                <p className="text-gray-500 mt-3 text-base">
+                  Comfortable, modern and peaceful study rooms
                 </p>
+              </div>
 
-                <button
-                  onClick={handleReset}
-                  className="mt-6 rounded-2xl bg-[#10b981] px-6 py-3 font-semibold text-white hover:opacity-90"
-                >
-                  Clear Filters
-                </button>
+              <div className="rounded-3xl bg-[#10b981] px-7 py-5 text-white shadow-xl w-fit">
+                <p className="text-sm opacity-90">Available Rooms</p>
+
+                <h3 className="text-4xl font-bold mt-1">
+                  {loading ? "--" : rooms.length}
+                </h3>
               </div>
             </div>
-          )}
+
+            {/* ERROR */}
+            {error && (
+              <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-600">
+                {error}
+              </div>
+            )}
+
+            {/* CONTENT */}
+            {!loading && (
+              <div className="min-h-[1000px] transition-all duration-300">
+                {rooms.length > 0 ? (
+                  <div
+                    className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 transition-opacity duration-300 ${
+                      isFiltering ? "opacity-70" : "opacity-100"
+                    }`}
+                  >
+                    {rooms.map((room) => (
+                      <RoomCard key={room._id} room={room} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="min-h-[700px] flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#10b981]/10">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-10 w-10 text-[#10b981]"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M8 9l3 3-3 3m5 0h3"
+                          />
+                        </svg>
+                      </div>
+
+                      <h2 className="text-3xl font-bold text-gray-800">
+                        No Rooms Found
+                      </h2>
+
+                      <p className="mt-3 text-gray-500 max-w-md">
+                        We couldn’t find any rooms matching your current search
+                        or filters.
+                      </p>
+
+                      <button
+                        onClick={handleReset}
+                        className="mt-6 rounded-2xl bg-[#10b981] px-6 py-3 font-semibold text-white hover:opacity-90"
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

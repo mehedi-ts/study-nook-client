@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { getRoomById } from "../../../../lib/data";
 import { Card } from "@heroui/react";
 
 import { IoPeople } from "react-icons/io5";
@@ -12,28 +11,54 @@ import { headers } from "next/headers";
 import { auth } from "../../../../lib/auth";
 import DetailsAction from "@/components/ui/DetailsAction";
 
+const fallbackImage =
+  "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1200&auto=format&fit=crop";
+
 const RoomDetailsPage = async ({ params }) => {
+  const requestHeaders = await headers();
+
   const { token } = await auth.api.getToken({
-    headers: await headers(),
+    headers: requestHeaders,
   });
-  console.log("token", token);
+
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: requestHeaders,
   });
 
   const userData = session?.user;
 
   const { roomId } = await params;
 
-  const roomData = await getRoomById(roomId);
+  // ✅ DIRECT FETCH (no helper function)
+  const roomRes = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/all-rooms/${roomId}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const roomData = await roomRes.json();
+  console.log("this is room", roomData);
+
   const room_id = roomId;
 
-  const res = await fetch(`${process.env.NEXT_API}/booking-count/${roomId}`, {
-    headers: { authorization: `bearer${token}` },
-  });
+  // SAFE FETCH (booking count)
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/booking-count/${roomId}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    },
+  );
+
   const data = await res.json();
 
-  const count = data?.count;
+  const count = data?.count || 0;
+
   const {
     roomName,
     image,
@@ -42,10 +67,12 @@ const RoomDetailsPage = async ({ params }) => {
     floor,
     capacity,
     userEmail,
-  } = roomData;
+  } = roomData || {};
 
-  // 👉 static total booking (later API theke asbe)
-  const totalBookings = 12;
+  const imageUrl =
+    image && typeof image === "string" && image.startsWith("http")
+      ? image
+      : fallbackImage;
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-10">
@@ -53,7 +80,14 @@ const RoomDetailsPage = async ({ params }) => {
         {/* LEFT - IMAGE */}
         <div className="lg:col-span-1">
           <Card className="relative h-[420px] w-full overflow-hidden rounded-2xl shadow-xl border-0">
-            <Image src={image} alt={roomName} fill className="object-cover" />
+            <Image
+              src={imageUrl}
+              alt={roomName || "Room Image"}
+              fill
+              sizes="(max-width: 1024px) 100vw, 33vw"
+              className="object-cover"
+              priority
+            />
           </Card>
         </div>
 
@@ -61,6 +95,7 @@ const RoomDetailsPage = async ({ params }) => {
         <div className="lg:col-span-1 flex flex-col gap-5">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{roomName}</h1>
+
             <p className="text-gray-600 mt-2 leading-relaxed">{description}</p>
           </div>
 

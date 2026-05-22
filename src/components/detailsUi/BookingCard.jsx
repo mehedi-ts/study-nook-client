@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Button, Label, TextArea } from "@heroui/react";
+import toast from "react-hot-toast";
+import { authClient } from "../../../lib/auth-client";
 
 const HOURLY_SLOTS = Array.from({ length: 13 }, (_, i) => {
   const hour = 8 + i;
@@ -11,7 +13,6 @@ const HOURLY_SLOTS = Array.from({ length: 13 }, (_, i) => {
 const HOURLY_RATE = 50;
 
 const BookingCard = ({ onClose, roomData, userData, count }) => {
-  console.log(userData, roomData);
   const {
     roomName,
     image,
@@ -50,6 +51,8 @@ const BookingCard = ({ onClose, roomData, userData, count }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const { data: tokenData } = await authClient.token();
+
     if (!date || !startTime || !endTime) {
       setError("All required fields must be filled");
       return;
@@ -84,25 +87,35 @@ const BookingCard = ({ onClose, roomData, userData, count }) => {
     };
 
     try {
-      const req = await fetch(`${process.env.NEXT_API}/booking`, {
+      const req = await fetch(`${process.env.NEXT_PUBLIC_API}/booking`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${tokenData?.token}`,
+        },
         body: JSON.stringify(bookingData),
       });
 
       const res = await req.json();
 
-      if (!req.ok) {
-        alert(res.message || "Something went wrong");
+      console.log(res);
+
+      // ❗ backend success check (IMPORTANT FIX)
+      if (!res.success) {
+        toast.error(res.message || "Something went wrong");
         return;
       }
 
-      console.log(res);
-      alert("Booking successful");
-      onClose?.();
+      // ✅ SUCCESS TOAST
+      toast.success("Room booked successfully!");
+
+      // ✅ REDIRECT TO MY BOOKINGS PAGE
+      setTimeout(() => {
+        window.location.href = "/my-bookings";
+      }, 800);
     } catch (error) {
       console.error(error);
-      alert("Server error. Please try again later.");
+      toast.error("Server error. Please try again later.");
     }
   };
 

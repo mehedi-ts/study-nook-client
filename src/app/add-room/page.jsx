@@ -8,8 +8,6 @@ import { FloppyDisk } from "@gravity-ui/icons";
 import {
   Button,
   Checkbox,
-  Description,
-  FieldError,
   Fieldset,
   Form,
   Input,
@@ -21,6 +19,7 @@ import {
 import { ArrowLeft, BookOpen } from "lucide-react";
 
 import { authClient } from "../../../lib/auth-client";
+import toast from "react-hot-toast";
 
 const amenities = [
   "Whiteboard",
@@ -33,69 +32,78 @@ const amenities = [
 
 const AddRoomPage = () => {
   const router = useRouter();
+
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
   const { name, email, id } = user || {};
+
   const [loading, setLoading] = useState(false);
 
-  // ✅ FIXED STATE
   const [selectedAmenities, setSelectedAmenities] = useState([]);
 
-  // ✅ TOGGLE FUNCTION
+  // TOGGLE AMENITY
   const handleAmenityChange = (item) => {
-    setSelectedAmenities((prev) => {
-      if (prev.includes(item)) {
-        return prev.filter((i) => i !== item);
-      }
-      return [...prev, item];
-    });
+    setSelectedAmenities((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item],
+    );
   };
 
+  // SUBMIT
   const onSubmit = async (e) => {
     e.preventDefault();
 
     if (!user) {
-      alert("Please login first");
+      toast.error("Please login first");
       return;
     }
 
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    const data = {
-      roomName: formData.get("roomName"),
-      description: formData.get("description"),
-      image: formData.get("image"),
-      floor: formData.get("floor"),
-      capacity: Number(formData.get("capacity")),
-      hourlyRate: Number(formData.get("hourlyRate")),
-
-      // ✅ FIXED HERE
-      amenities: selectedAmenities,
-
-      userName: name,
-      userId: id,
-      userEmail: email,
-    };
-
     try {
+      setLoading(true);
+
+      const formData = new FormData(e.currentTarget);
+
+      const data = {
+        roomName: formData.get("roomName"),
+        description: formData.get("description"),
+        image: formData.get("image"),
+        floor: formData.get("floor"),
+        capacity: Number(formData.get("capacity")),
+        hourlyRate: Number(formData.get("hourlyRate")),
+        amenities: selectedAmenities,
+        userName: name,
+        userId: id,
+        userEmail: email,
+      };
+
       const req = await fetch(`${process.env.NEXT_PUBLIC_API}/all-rooms`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+        },
         body: JSON.stringify(data),
       });
 
       const res = await req.json();
 
+      if (!req.ok) {
+        throw new Error(res?.message || "Failed to add room");
+      }
+
       if (res?.acknowledged) {
-        alert("Room added successfully");
-        router.push("/all-rooms");
+        toast.success("Successfully created!");
+
+        e.target.reset();
+        setSelectedAmenities([]);
+
+        setTimeout(() => {
+          router.push("/all-rooms");
+        }, 800);
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -107,7 +115,7 @@ const AddRoomPage = () => {
         {/* BACK */}
         <button
           onClick={() => router.push("/all-rooms")}
-          className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 sm:mb-8"
+          className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors mb-6 sm:mb-8"
         >
           <ArrowLeft size={18} />
           Study Rooms
@@ -149,12 +157,14 @@ const AddRoomPage = () => {
               {/* ROOM NAME */}
               <TextField isRequired name="roomName">
                 <Label>Room Name</Label>
+
                 <Input className="w-full" placeholder="e.g. Focus Room A" />
               </TextField>
 
               {/* DESCRIPTION */}
               <TextField isRequired name="description">
                 <Label>Description</Label>
+
                 <TextArea
                   className="w-full"
                   rows={5}
@@ -165,6 +175,7 @@ const AddRoomPage = () => {
               {/* IMAGE */}
               <TextField isRequired name="image">
                 <Label>Image URL</Label>
+
                 <Input className="w-full" placeholder="https://..." />
               </TextField>
 
@@ -172,22 +183,35 @@ const AddRoomPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <TextField isRequired name="floor">
                   <Label>Floor</Label>
+
                   <Input className="w-full" placeholder="3rd Floor" />
                 </TextField>
 
                 <TextField isRequired name="capacity">
                   <Label>Capacity</Label>
-                  <Input className="w-full" type="number" placeholder="4" />
+
+                  <Input
+                    className="w-full"
+                    type="number"
+                    placeholder="4"
+                    min={1}
+                  />
                 </TextField>
               </div>
 
               {/* HOURLY RATE */}
               <TextField isRequired name="hourlyRate">
                 <Label>Hourly Rate</Label>
-                <Input className="w-full" type="number" placeholder="5" />
+
+                <Input
+                  className="w-full"
+                  type="number"
+                  placeholder="5"
+                  min={1}
+                />
               </TextField>
 
-              {/* AMENITIES FIXED */}
+              {/* AMENITIES */}
               <div>
                 <h2 className="text-xl font-bold mb-4 text-slate-900">
                   Amenities
@@ -202,12 +226,13 @@ const AddRoomPage = () => {
                     const checked = selectedAmenities.includes(item);
 
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={item}
                         onClick={() => handleAmenityChange(item)}
                         className={`
-                          p-4 border rounded-2xl cursor-pointer transition
-                          flex items-center gap-2 select-none
+                          p-4 border rounded-2xl transition-all duration-200
+                          flex items-center gap-2 text-left
                           ${
                             checked
                               ? "bg-green-50 border-green-500"
@@ -217,7 +242,6 @@ const AddRoomPage = () => {
                       >
                         <Checkbox
                           isSelected={checked}
-                          onValueChange={() => handleAmenityChange(item)}
                           classNames={{ base: "hidden" }}
                         />
 
@@ -236,7 +260,7 @@ const AddRoomPage = () => {
                             ✓
                           </span>
                         )}
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -248,6 +272,7 @@ const AddRoomPage = () => {
                   type="reset"
                   variant="bordered"
                   className="w-full sm:w-auto"
+                  isDisabled={loading}
                 >
                   Cancel
                 </Button>
@@ -259,6 +284,7 @@ const AddRoomPage = () => {
                   isDisabled={loading}
                 >
                   <FloppyDisk />
+
                   {loading ? "Saving..." : "Add Room"}
                 </Button>
               </div>

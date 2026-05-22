@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, X, Library } from "lucide-react";
+import { authClient } from "../../../lib/auth-client";
 
 const MyBookingCard = ({ data }) => {
   if (!data) return null;
@@ -20,9 +21,13 @@ const MyBookingCard = ({ data }) => {
 
   // DELETE API call
   const handleDelete = async () => {
+    const { data: tokenData } = await authClient.token();
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API}/booking/${_id}`, {
         method: "DELETE",
+        headers: {
+          authorization: `Bearer ${tokenData?.token}`,
+        },
       });
 
       const result = await res.json();
