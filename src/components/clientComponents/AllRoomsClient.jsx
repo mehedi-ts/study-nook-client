@@ -161,7 +161,7 @@ const AllRoomsClient = () => {
         </div>
 
         {/* ROOMS */}
-        <div className="lg:col-span-9">
+        <div className="lg:col-span-9 ">
           <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-4xl font-bold">
