@@ -84,7 +84,7 @@ const BookingCard = ({ onClose, roomData, userData, count }) => {
     };
 
     try {
-      const req = await fetch("http://localhost:8000/booking", {
+      const req = await fetch(`${process.env.NEXT_API}/booking`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),
@@ -92,7 +92,6 @@ const BookingCard = ({ onClose, roomData, userData, count }) => {
 
       const res = await req.json();
 
-      // 🔥 Conflict check (backend 400)
       if (!req.ok) {
         alert(res.message || "Something went wrong");
         return;

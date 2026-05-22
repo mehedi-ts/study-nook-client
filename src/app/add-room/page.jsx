@@ -81,7 +81,7 @@ const AddRoomPage = () => {
     };
 
     try {
-      const req = await fetch("http://localhost:8000/all-rooms", {
+      const req = await fetch(`${process.env.NEXT_PUBLIC_API}/all-rooms`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(data),

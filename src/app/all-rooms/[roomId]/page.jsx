@@ -13,6 +13,10 @@ import { auth } from "../../../../lib/auth";
 import DetailsAction from "@/components/ui/DetailsAction";
 
 const RoomDetailsPage = async ({ params }) => {
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
+  console.log("token", token);
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -24,7 +28,9 @@ const RoomDetailsPage = async ({ params }) => {
   const roomData = await getRoomById(roomId);
   const room_id = roomId;
 
-  const res = await fetch(`http://localhost:8000/booking-count/${roomId}`);
+  const res = await fetch(`${process.env.NEXT_API}/booking-count/${roomId}`, {
+    headers: { authorization: `bearer${token}` },
+  });
   const data = await res.json();
 
   const count = data?.count;

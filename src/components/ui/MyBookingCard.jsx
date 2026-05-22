@@ -21,7 +21,7 @@ const MyBookingCard = ({ data }) => {
   // DELETE API call
   const handleDelete = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/booking/${_id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API}/booking/${_id}`, {
         method: "DELETE",
       });
 

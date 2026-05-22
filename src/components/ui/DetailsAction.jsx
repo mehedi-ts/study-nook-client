@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 const DetailsAction = ({ userData, userEmail, room_id, roomData }) => {
   console.log(userData, room_id, userEmail);
   const handleDelete = async (id) => {
-    const req = await fetch(`http://localhost:8000/all-rooms/${id}`, {
+    const req = await fetch(`${process.env.NEXT_API}/all-rooms/${id}`, {
       method: "DELETE",
     });
     const res = await req.json();

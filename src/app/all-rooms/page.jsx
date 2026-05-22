@@ -32,7 +32,7 @@ const AllRoomsPage = () => {
         }
 
         const res = await fetch(
-          `http://localhost:8000/all-rooms?${params.toString()}`,
+          `${process.env.NEXT_API}/all-rooms?${params.toString()}`,
           {
             cache: "no-store",
           },
@@ -41,6 +41,7 @@ const AllRoomsPage = () => {
         const data = await res.json();
 
         setRooms(data);
+        console.log("room", data);
       } catch (error) {
         console.log(error);
       } finally {

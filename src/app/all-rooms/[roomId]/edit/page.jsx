@@ -93,7 +93,7 @@ const EditRoomForm = () => {
 
     try {
       const req = await fetch(
-        `http://localhost:8000/all-rooms/${roomData._id}`,
+        `${process.env.NEXT_API}/all-rooms/${roomData._id}`,
         {
           method: "PATCH",
           headers: { "content-type": "application/json" },
