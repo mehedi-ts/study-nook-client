@@ -22,17 +22,26 @@ const AvailableStudyRooms = () => {
           </h2>
         </div>
 
-        {/* GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {rooms.map((room) => (
-            <div
-              key={room._id}
-              className="transition-transform duration-300 hover:-translate-y-2"
-            >
-              <RoomCard room={room} />
-            </div>
-          ))}
-        </div>
+        {/* NO DATA FOUND */}
+        {rooms.length === 0 ? (
+          <div className="border border-gray-200 rounded-2xl py-16 flex items-center justify-center bg-gray-50">
+            <p className="text-gray-500 text-lg font-medium">
+              No available study rooms found
+            </p>
+          </div>
+        ) : (
+          /* GRID */
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            {rooms.map((room) => (
+              <div
+                key={room._id}
+                className="transition-transform duration-300 hover:-translate-y-2"
+              >
+                <RoomCard room={room} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

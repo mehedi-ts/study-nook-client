@@ -3,7 +3,6 @@
 Live Site: https://study-nook-rouge.vercel.app/
 
 Backend GitHub Repository: https://github.com/mehedi-ts/study-nook-server.git
----
 
 ## Overview
 
@@ -43,7 +42,9 @@ The system focuses on secure authentication, efficient booking logic, and a smoo
 
 ## Preview
 
-> Add project screenshots or demo images here
+<p align="center">
+  <img src="https://i.ibb.co/twxVNbPG/378f18e1-e7b4-4a5c-9b46-6c20a5047e88.png" alt="StudyNook Preview" />
+</p>
 
 
 ---
